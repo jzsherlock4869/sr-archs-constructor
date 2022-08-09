@@ -88,7 +88,6 @@ class SCPA_Module(nn.Module):
         return out
 
 
-
 class ESA_Module(nn.Module):
     """
     Enhanced Spatial Attention
@@ -97,34 +96,29 @@ class ESA_Module(nn.Module):
     [Block] - conv1x1 - strided_conv - pool - convs - up -+- conv1x1 - sigmoid - x -
             |____________________________________________________________________|
     """
-    pass
-
-
-class ESA(nn.Module):
-    def __init__(self,esa_channels, n_feats, conv):
-        super(ESA, self).__init__()
+    def __init__(self, n_feats, esa_channels):
+        super(ESA_Module, self).__init__()
         f = esa_channels
-        self.conv1 = conv(n_feats, f, kernel_size=1)
-        self.conv_f = conv(f, f, kernel_size=1)
-        self.conv_max = conv(f, f, kernel_size=3, padding=1)
-        self.conv2 = conv(f, f, kernel_size=3, stride=2, padding=0)
-        self.conv3 = conv(f, f, kernel_size=3, padding=1)
-        self.conv3_ = conv(f, f, kernel_size=3, padding=1)
-        self.conv4 = conv(f, n_feats, kernel_size=1)
+        self.conv1 = nn.Conv2d(n_feats, f, kernel_size=1)
+        self.conv2 = nn.Conv2d(f, f, kernel_size=3, stride=2, padding=0)
+        self.maxpool = nn.MaxPool2d(kernel_size=7, stride=3)
+        self.conv3 = nn.Conv2d(f, f, kernel_size=3, padding=1)
+        self.conv_max = nn.Conv2d(f, f, kernel_size=3, padding=1)
+        self.conv3_ = nn.Conv2d(f, f, kernel_size=3, padding=1)
+        self.conv_f = nn.Conv2d(f, f, kernel_size=1)
+        self.conv4 = nn.Conv2d(f, n_feats, kernel_size=1)
         self.sigmoid = nn.Sigmoid()
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        c1_ = (self.conv1(x))
+        c1_ = self.conv1(x)
         c1 = self.conv2(c1_)
-        v_max = F.max_pool2d(c1, kernel_size=7, stride=3)
-        c3 = self.conv3(v_max)
+        v_max = self.maxpool(c1)
         v_range = self.relu(self.conv_max(v_max))
         c3 = self.relu(self.conv3(v_range))
         c3 = self.conv3_(c3)
         c3 = F.interpolate(c3, (x.size(2), x.size(3)), mode='bilinear', align_corners=False) 
         cf = self.conv_f(c1_)
-        c4 = self.conv4(c3+cf)
+        c4 = self.conv4(c3 + cf)
         m = self.sigmoid(c4)
-
         return x * m
