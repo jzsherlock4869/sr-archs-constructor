@@ -2,7 +2,9 @@ from turtle import forward
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .utils_basic import get_act_layer
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from utils import get_act_layer
 
 # UP SCALE
 class PixelShuffle_Module(nn.Module):
@@ -11,7 +13,7 @@ class PixelShuffle_Module(nn.Module):
     """
     def __init__(self, n_feat, out_nc, scale) -> None:
         super(PixelShuffle_Module, self).__init__()
-        nf_out = n_feat * (scale ** 2)
+        nf_out = out_nc * (scale ** 2)
         self.conv = nn.Conv2d(n_feat, nf_out, 3, 1, 1)
         self.ps = nn.PixelShuffle(scale)
 

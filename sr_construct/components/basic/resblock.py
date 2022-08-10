@@ -1,7 +1,10 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from .utils_basic import get_act_layer
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from utils import get_act_layer
+
 
 class ResBlock_Module(nn.Module):
     """

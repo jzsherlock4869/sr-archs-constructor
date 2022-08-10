@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
-from .utils_basic import get_act_layer
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 
 # modified from densenet-pytorch
 # https://github.com/andreasveit/densenet-pytorch/blob/master/densenet.py
@@ -24,14 +26,14 @@ class _DenseBasicBlock(nn.Module):
         return torch.cat([x, out], 1)
 
 
-class DenseBlock(nn.Module):
+class DenseBlock_Module(nn.Module):
     """
     |----------------|
     |------|---------|
     block1 -- block2 -- block3
     """
     def __init__(self, nb, in_ch, growth_ch, with_bn, act_type):
-        super(DenseBlock, self).__init__()
+        super(DenseBlock_Module, self).__init__()
         blocks = []
         for i in range(nb):
             blocks.append(_DenseBasicBlock(in_ch + i * growth_ch, growth_ch, with_bn, act_type))
