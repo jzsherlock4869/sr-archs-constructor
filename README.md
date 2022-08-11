@@ -6,6 +6,8 @@ A toolbox for building super-resolution architectures easily
 
 Build the SR architecture with common structures and blocks as LEGO
 
+![sr_archs](assets/figs/sr_archs.png)
+
 For example, to build a trunk structured model with RFDB block, using ESA as attention:
 
 ```python
@@ -29,6 +31,8 @@ model_arch = Trunk_Struct(in_nc, out_nc, struct_nf=nf, struct_nb=nb, scale=scale
 
 print(model_arch)
 ```
+
+
 
 ## Current Collected Modules
 
