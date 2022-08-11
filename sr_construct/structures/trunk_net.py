@@ -14,15 +14,15 @@ class Trunk_Struct(nn.Module):
     x - conv - [block-block-...-block] - fusion_conv -+- pixelshuffle -
                   |____|_____|____|__________|
     """
-    def __init__(self, in_nc, out_nc, nf, nb, scale, block, **kwargs) -> None:
+    def __init__(self, in_nc, out_nc, struct_nf, struct_nb, scale, block, **kwargs) -> None:
         super(Trunk_Struct, self).__init__()
-        self.nb = nb
-        self.conv_in = nn.Conv2d(in_nc, nf, 3, 1, 1)
+        self.nb = struct_nb
+        self.conv_in = nn.Conv2d(in_nc, struct_nf, 3, 1, 1)
         self.trunk = nn.ModuleList(
-            [block(**kwargs) for _ in range(nb)]
+            [block(**kwargs) for _ in range(struct_nb)]
         )
-        self.fusion_conv = nn.Conv2d(nf * nb, nf, 1, 1, 0)
-        self.upsampler = PixelShuffle_Module(nf, out_nc, scale)
+        self.fusion_conv = nn.Conv2d(struct_nf * struct_nb, struct_nf, 1, 1, 0)
+        self.upsampler = PixelShuffle_Module(struct_nb, out_nc, scale)
     
     def forward(self, x):
         feat_in = self.conv_in(x)
