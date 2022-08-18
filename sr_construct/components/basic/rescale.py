@@ -1,4 +1,4 @@
-from turtle import forward
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -128,3 +128,24 @@ class PixelUnshuffle_Module(nn.Module):
         if self.last_conv:
             output = self.conv(output)
         return output
+
+
+# PROGRESSIVE UP SCALE
+class ProgPixelShuffle_Module(nn.Module):
+    """
+    conv + pixel-shuffle-x2 + conv + pixel-shuffle-x2 + ... + conv_last
+    only apply to 2^n scale
+    """
+    def __init__(self, n_feat, out_nc, scale) -> None:
+        super(ProgPixelShuffle_Module, self).__init__()
+        assert scale & (scale - 1) == 0
+        prog_ls = []
+        for _ in range(int(math.log(scale, 2))):
+            prog_ls.append(nn.Conv2d(n_feat, n_feat * 4, 3, 1, 1))
+            prog_ls.append(nn.PixelShuffle(2))
+        prog_ls.append(nn.Conv2d(n_feat, out_nc, 3, 1, 1))
+        self.body = nn.Sequential(prog_ls)
+
+    def forward(self, x):
+        out = self.body(x)
+        return out
